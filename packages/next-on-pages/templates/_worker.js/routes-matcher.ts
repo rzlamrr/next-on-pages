@@ -215,7 +215,16 @@ export class RoutesMatcher {
 			// to continue and did not rewrite/redirect the URL.
 			this.body = resp.body;
 			this.status = resp.status;
+		} else if (
+			resp.headers.has('location') &&
+			resp.status >= 300 &&
+			resp.status < 400
+		) {
+			this.status = resp.status;
 		}
+
+		// copy to the request object the headers that have been set by the middleware
+		applyHeaders(this.reqCtx.request.headers, resp.headers);
 
 		applyHeaders(this.headers.normal, resp.headers);
 		this.headers.middlewareLocation = resp.headers.get('location');
